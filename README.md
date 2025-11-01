@@ -1,1 +1,3 @@
-# zoopifiltriads
+# zoopifiltriads 
+Zoopi FiltriAds é uma vitrine digital inteligente que conecta usuários a produtos de diversas categorias com praticidade, estilo e eficiência. O site oferece uma experiência de navegação moderna, com filtros por segmento, busca por nome, carrossel de lojas parceiras e um painel administrativo exclusivo para cadastro, edição e gerenciamento de anúncios.
+Voltado para quem deseja divulgar ou encontrar ofertas em áreas como eletrônicos, moda, beleza, casa, esporte, games, pet, brinquedos, tecnologia, ferramentas e muito mais, o Zoopi FiltriAds combina visual atrativo com funcionalidade intuitiva — tudo em um ambiente leve, responsivo e acessível.
