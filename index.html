@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Zoopi FiltriAds</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin:0; padding:0;}
+  body { font-family:'Poppins', sans-serif; background:#f0f0f0; color:#333;}
+  header { background:#ff1493; color:white; padding:26px; text-align:center; font-size:2em; font-weight:600;}
+  #topBtns { position:fixed; top:10px; right:10px; z-index:1000; display:flex; gap:10px;}
+  #topBtns button { padding:8px 12px; border:none; border-radius:5px; cursor:pointer; font-weight:bold;}
+  .filtros { text-align:center; margin:20px; display:flex; flex-wrap:wrap; justify-content:center; gap:10px;}
+  .filtros button { background:linear-gradient(to right,#ff69b4,#ff1493); color:white; border:none; padding:8px 12px; border-radius:30px; cursor:pointer; font-size:0.88em; transition:transform 0.2s ease;}
+  .filtros button:hover { transform:scale(1.05); background:linear-gradient(to right,#ff1493,#ff69b4);}
+  .busca { text-align:center; margin:10px 20px;}
+  .busca input { width:80%; max-width:400px; padding:10px; border-radius:30px; border:1px solid #ccc; font-size:1em;}
+  #vitrine { display:grid; grid-template-columns: repeat(4,1fr); gap: 22px; padding:36px 22px; background:#ededed; }
+  .card-produto {
+    border-radius:10px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.16);
+    display:flex; flex-direction:column; align-items:center; overflow:hidden; position:relative; margin:0; transition:transform 0.18s;
+    min-height:292px;
+  }
+  .card-produto:hover { transform:scale(1.03);}
+  .card-imagem { width:100%; height:140px; object-fit:contain; border-bottom:1px solid #e0e0e0; background:#f8f8f8; }
+  .card-titulo { font-size:0.98em; font-weight:600; margin:10px 0 2px 0; color:#222; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:95%;}
+  body.dark .card-titulo { color:#fff;}
+  .card-preco { font-size:1.18em; color:#129a36; font-weight:bold; margin-bottom:8px; text-align:center; letter-spacing:0.5px;}
+  .card-contador { font-size:0.90em; color:#777; margin-bottom:7px; }
+  .card-botao {
+    background:linear-gradient(90deg,#37c871 60%,#22a05a 100%);
+    color:#fff; padding:8px 20px; font-weight:700; border:none; border-radius:20px; cursor:pointer;
+    font-size:0.98em; margin-bottom:12px; box-shadow:0 1px 5px #cdfbe94c; transition:background 0.17s, transform 0.14s;
+  }
+  .card-botao:hover {
+    background:linear-gradient(90deg,#22a05a 70%,#37c871 100%);
+    transform:scale(1.04);
+  }
+  @media(max-width:1024px){#vitrine{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:700px){#vitrine{grid-template-columns:1fr;}}
+
+  .admin-area { display:none; width:98%; max-width:980px; margin:36px auto 10px auto; padding:18px; background:white; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.16);}
+  .admin-area input, .admin-area select {width:100%; margin-bottom:7px; padding:6px; border-radius:5px; border:1px solid #ccc; font-size:0.97em;}
+  .admin-area button.salvar {background:#7a3cff; color:white; width:100%; padding:8px; border-radius:6px; border:none; margin-bottom:12px; cursor:pointer;}
+
+  .lista-produtos {
+    width:100%;
+    margin-top:18px;
+    padding:16px;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
+    justify-items:center;
+    background:#fafafa;
+    border-radius:8px;
+    overflow:visible;
+  }
+  @media(max-width:1024px){.lista-produtos{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:700px){.lista-produtos{grid-template-columns:1fr;}}
+  body.dark .lista-produtos{
+    background:#191919;
+    color:#fff;
+  }
+  .admin-card {
+    background:#eee;
+    border-radius:7px;
+    box-shadow:0 1px 5px #cacaca44;
+    text-align:center;
+    padding:8px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-height:69px;
+    font-size:0.8em;
+    color: #222;
+  }
+  .admin-title { font-size:0.95em; font-weight:500; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:94%; color:#222;}
+  body.dark .admin-card, body.dark .admin-title { color:#fff;}
+  .admin-btns {display:flex; gap:6px; margin-top:3px;}
+  .admin-area button.editar, .admin-area button.excluir { font-size:0.88em; padding:5px 10px; border-radius:5px; }
+  .admin-area button.editar { background:#ffa500; color:white; border:none;}
+  .admin-area button.excluir { background:#e53935; color:white; border:none;}
+
+  .carousel-container { width:100%; overflow:hidden; background:#fff; padding:10px 0; margin-top:20px;}
+  .carousel {display:flex; gap:36px; animation:scrollcar 44s linear infinite; will-change:transform;}
+  .carousel img {height:42px; filter:drop-shadow(0 1px 3px #9e9e9e66); transition:transform 0.26s;}
+  .carousel img:hover {transform:scale(1.06) rotate(-3deg);}
+  @keyframes scrollcar { 0%{transform:translateX(0);} 100%{transform:translateX(-48%);}
+  }
+  @media (max-width:700px) {.carousel img {height:29px;} .carousel {gap:15px;}}
+
+  body.dark{background:#121212; color:#fff;}
+  body.dark header{background:#1a1a1a;}
+  body.dark .card-produto{background:#1e1e1e; color:#fff;}
+  body.dark .card-botao{background:linear-gradient(90deg,#1ce858 60%,#267a3a 100%);}
+  body.dark .admin-area{background:#191919; color:#fff;}
+  body.dark input, body.dark select{background:#333; color:#fff; border:1px solid #555;}
+  body.dark .filtros button{background:linear-gradient(to right,#ff69b4,#ff1493); color:#fff;}
+</style>
+</head>
+<body>
+<header>Zoopi FiltriAds</header>
+<div id="topBtns">
+  <button onclick="toggleTema()">🌙/☀️</button>
+  <button onclick="entrarComoAdmin()">🔐 Login ADM</button>
+</div>
+
+<div class="filtros">
+  <button onclick="filtrarCategoria('Todos')">Todos</button>
+  <button onclick="filtrarCategoria('Eletrônicos')">🔌 Eletrônicos</button>
+  <button onclick="filtrarCategoria('Perfumes')">💎 Perfumes</button>
+  <button onclick="filtrarCategoria('Beleza')">💄 Beleza</button>
+  <button onclick="filtrarCategoria('Casa')">🏠 Casa</button>
+  <button onclick="filtrarCategoria('Esporte')">🏋️ Esporte</button>
+  <button onclick="filtrarCategoria('Games')">🎮 Games</button>
+  <button onclick="filtrarCategoria('Pet')">🐶 Pet</button>
+  <button onclick="filtrarCategoria('Brinquedos')">🧸 Brinquedos</button>
+  <button onclick="filtrarCategoria('Tecnologia')">📱 Tecnologia</button>
+  <button onclick="filtrarCategoria('Ferramentas')">🛠️ Ferramentas</button>
+  <button onclick="filtrarCategoria('Eletrodomésticos')">🧺 Eletrodomésticos</button>
+  <button onclick="filtrarCategoria('Acessórios')">🧢 Acessórios</button>
+</div>
+<div class="busca">
+  <input type="text" id="campoBusca" placeholder="Buscar produto por nome..." oninput="buscarProduto()">
+</div>
+
+<div class="admin-area" id="adminArea">
+  <h2>Área Administrativa</h2>
+  <input type="hidden" id="editIndex">
+  <input type="text" id="titulo" placeholder="Título do produto">
+  <select id="categoria">
+    <option value="">Selecione a categoria</option>
+    <option value="Eletrônicos">Eletrônicos</option>
+    <option value="Perfumes">Perfumes</option>
+    <option value="Beleza">Beleza</option>
+    <option value="Casa">Casa</option>
+    <option value="Esporte">Esporte</option>
+    <option value="Games">Games</option>
+    <option value="Pet">Pet</option>
+    <option value="Brinquedos">Brinquedos</option>
+    <option value="Tecnologia">Tecnologia</option>
+    <option value="Ferramentas">Ferramentas</option>
+    <option value="Eletrodomésticos">Eletrodomésticos</option>
+    <option value="Acessórios">Acessórios</option>
+  </select>
+  <input type="text" id="preco" placeholder="Preço">
+  <input type="text" id="imagem" placeholder="URL da imagem">
+  <input type="text" id="link" placeholder="Link da loja">
+  <label><input type="checkbox" id="lancamento"> Marcar como lançamento</label>
+  <button class="salvar" onclick="cadastrarOuAtualizarProduto()">Salvar produto</button>
+  <div class="lista-produtos" id="listaProdutos"></div>
+</div>
+
+<div id="vitrine"></div>
+
+<div class="carousel-container">
+  <div class="carousel">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQA4ZuFKAo_hf7n2PEow8ezjy3EWL-3OEF5ag&s" alt="Mercado Livre">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0lYK6_sZOrGeG-FYIp6615Y7kk1Vp4RD4QO8XYG6hL_BNVmbD8wmX44DvaHoy9YHfyVE&usqp=CAU" alt="Amazon">
+  </div>
+</div>
+<script>
+let produtos = JSON.parse(localStorage.getItem("products")) || [];
+let categoriaAtual = "Todos";
+let termoBusca = "";
+const senhaAdmin = "zoopi1962@#";
+
+function entrarComoAdmin(){
+  const senha = prompt("Digite a senha de administrador:");
+  if(senha === senhaAdmin){
+    document.getElementById("adminArea").style.display="block";
+    atualizarListaAdmin();
+  } else { alert("Senha incorreta."); }
+}
+function toggleTema(){document.body.classList.toggle("dark");}
+function filtrarCategoria(cat){categoriaAtual=cat; carregarVitrine();}
+function buscarProduto(){termoBusca=document.getElementById("campoBusca").value.toLowerCase().trim(); carregarVitrine();}
+
+function atualizarListaAdmin(){
+  const lista = document.getElementById("listaProdutos");
+  lista.innerHTML="";
+  if(produtos.length===0){lista.innerHTML="<p>Nenhum produto cadastrado.</p>"; return;}
+  produtos.forEach((p,i)=>{
+    let div = document.createElement("div");
+    div.className = "admin-card";
+    div.innerHTML = `<div class="admin-title">${truncTitle(p.title)}</div>
+      <div class="admin-btns">
+        <button class="editar" onclick="editarProduto(${i})">Editar</button>
+        <button class="excluir" onclick="excluirProduto(${i})">Excluir</button>
+      </div>`;
+    lista.appendChild(div);
+  });
+}
+
+function carregarVitrine() {
+  const vitrine = document.getElementById("vitrine");
+  vitrine.innerHTML = "";
+  let filtrados = produtos.filter(p=>categoriaAtual==="Todos"?true:(p.category||"").toLowerCase()===categoriaAtual.toLowerCase());
+  if(termoBusca!=="") filtrados = filtrados.filter(p => p.title.toLowerCase().includes(termoBusca));
+  if (filtrados.length === 0) {
+    vitrine.innerHTML = "<p style='color:#444; text-align:center;'>Nenhum produto encontrado.</p>"; return;
+  }
+  filtrados.forEach((p, idx) => {
+    let clicks = Number(localStorage.getItem("clicks_" + idx)) || 0;
+    const div = document.createElement("div"); div.className = "card-produto";
+    div.innerHTML += `
+      <img class="card-imagem" src="${p.image}" alt="${p.title}">
+      <div class="card-contador">Cliques: <span id="clickCount_${idx}">${clicks}</span></div>
+      <div class="card-titulo">${p.title}</div>
+      <div class="card-preco">R$ ${Number(p.price).toLocaleString("pt-BR", {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
+      <button class="card-botao" onclick="clickComprar(${idx},'${p.link}')">Compre já!</button>
+    `;
+    vitrine.appendChild(div);
+  });
+}
+
+function truncTitle(t) {
+  let arr = t.split(' ');
+  return arr.slice(0,3).join(' ');
+}
+function clickComprar(i,link){
+  let count = Number(localStorage.getItem("clicks_" + i)) || 0;
+  count += 1;
+  localStorage.setItem("clicks_" + i, count);
+  document.getElementById("clickCount_" + i).innerText = count;
+  window.open(link, "_blank");
+}
+
+function cadastrarOuAtualizarProduto(){
+  const titulo = document.getElementById("titulo").value.trim();
+  const categoria = document.getElementById("categoria").value;
+  let precoRaw = document.getElementById("preco").value.trim().replace(",",".");
+  const preco = parseFloat(precoRaw);
+  const imagem = document.getElementById("imagem").value.trim();
+  const link = document.getElementById("link").value.trim();
+  const lancamento = document.getElementById("lancamento").checked;
+  const editIndex = document.getElementById("editIndex").value;
+
+  // Validação do formato da imagem
+  const formatosAceitos = [".webp", ".jpg", ".jpeg", ".png", ".gif"];
+  const isValido = formatosAceitos.some(ext => imagem.toLowerCase().endsWith(ext));
+  if(!titulo||!categoria||isNaN(preco)||!imagem||!link){
+    alert("Preencha todos os campos corretamente.");
+    return;
+  }
+  if(!isValido){
+    alert("Formato de imagem não suportado. Use .webp, .jpg, .jpeg, .png ou .gif");
+    return;
+  }
+  const novoProduto = {title:titulo, category:categoria, price:preco, image:imagem, link:link, lancamento:lancamento};
+  if(editIndex !== ""){
+    produtos[editIndex] = novoProduto; alert("Produto atualizado com sucesso!");
+  } else {
+    produtos.push(novoProduto); alert("Produto cadastrado com sucesso!");
+  }
+  localStorage.setItem("products", JSON.stringify(produtos));
+  limparFormulario();
+  atualizarListaAdmin(); carregarVitrine();
+}
+function editarProduto(index){
+  const p=produtos[index];
+  document.getElementById("titulo").value=p.title;
+  document.getElementById("categoria").value=p.category;
+  document.getElementById("preco").value=p.price;
+  document.getElementById("imagem").value=p.image;
+  document.getElementById("link").value=p.link;
+  document.getElementById("lancamento").checked=p.lancamento;
+  document.getElementById("editIndex").value=index;
+}
+function excluirProduto(index){
+  if(!confirm("Tem certeza que deseja excluir este produto?")) return;
+  produtos.splice(index, 1);
+  localStorage.setItem("products", JSON.stringify(produtos));
+  atualizarListaAdmin(); carregarVitrine();
+}
+function limparFormulario(){
+  document.getElementById("titulo").value="";
+  document.getElementById("categoria").value="";
+  document.getElementById("preco").value="";
+  document.getElementById("imagem").value="";
+  document.getElementById("link").value="";
+  document.getElementById("lancamento").checked=false;
+  document.getElementById("editIndex").value="";
+}
+window.onload = carregarVitrine;
+</script>
+</body>
+</html>
+
